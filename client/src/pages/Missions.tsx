@@ -56,7 +56,9 @@ const getMissions = async (
     Missions(
       sort: {
         field: ${sortField}
+        desc: ${sortDesc}
       }
+    
     ) {
       id
       title
@@ -105,7 +107,7 @@ const Missions = (): JSX.Element => {
   };
 
   useEffect(() => {
-    getMissions(sortField)
+    getMissions(sortField,sortDesc)
       .then((result: MissionsResponse) => {
         setMissions(result.data.Missions);
       })
@@ -113,7 +115,7 @@ const Missions = (): JSX.Element => {
         setErrMessage("Failed to load missions.");
         console.log(err);
       });
-  }, [sortField]);
+  }, [sortField,sortDesc]);
 
   return (
     <AppLayout title="Missions">
