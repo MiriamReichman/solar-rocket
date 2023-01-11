@@ -14,4 +14,7 @@ const fetchGraphQL = async (text: String, variables: any[]) => {
   throw(await response.json());
 };
 
+
+
+
 export default fetchGraphQL;
