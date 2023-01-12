@@ -11,11 +11,6 @@ import {
   Grid,
   Typography,
   Fab,
-  Dialog,
-  DialogTitle,
-  TextField,
-  DialogContent,
-  DialogActions,
   Toolbar,
   Container,
   IconButton,
@@ -24,6 +19,7 @@ import {
   Alert,
   Box,
   CircularProgress,
+  Divider,
 } from "@mui/material";
 
 import {
@@ -33,12 +29,11 @@ import {
   ArrowDownward as ArrowDownwardIcon,
   ArrowUpward as ArrowUpwardIcon,
 } from "@mui/icons-material";
-import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 import { ListMenu } from "../components/ListMenu";
+import { AddMission } from "../components/AddMission";
 
-type SortField = "Title" | "Date"|"Operator";
+type SortField = "Title" | "Date" | "Operator";
 
 interface MissionsResponse {
   data: {
@@ -73,6 +68,12 @@ const getMissions = async (
   );
 };
 
+// const createMissions = async (
+//   object: String,
+  
+// ): Promise<MissionsResponse> => {
+//   return await fetchGraphQLCreateMission(object);
+// };
 const Missions = (): JSX.Element => {
   const [missions, setMissions] = useState<Mission[] | null>(null);
   const [newMissionOpen, setNewMissionOpen] = useState(false);
@@ -80,7 +81,29 @@ const Missions = (): JSX.Element => {
   const [sortDesc, setSortDesc] = useState<boolean>(false);
   const [sortField, setSortField] = useState<SortField>("Title");
   const [errMessage, setErrMessage] = useState<String | null>(null);
-
+  const [formState, setFormState] = useState<Mission>({
+    id: "7db171adf4135d6c09385fa9521ee83e",
+    title: "Broadstar I",
+    operator: "SpaceCOM",
+    launch: {
+      date:new Date(2022-12-26),
+      vehicle: "Vulture 9",
+      location: {
+        name: "Cape Canaveral SLC-40",
+        longitude: -80.57718,
+        latitude: -28.562106
+      }
+    },
+    orbit: {
+      periapsis: 200,
+      apoapsis: 300,
+      inclination: 36
+    },
+    payload: {
+      capacity: 22000,
+      available: 7000
+    }
+  });
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
     setErrMessage(null);
@@ -105,9 +128,11 @@ const Missions = (): JSX.Element => {
   const handleSortDescClick = () => {
     setSortDesc(!sortDesc);
   };
+  const handleLocationChange = () => {
 
+  }
   useEffect(() => {
-    getMissions(sortField,sortDesc)
+    getMissions(sortField, sortDesc)
       .then((result: MissionsResponse) => {
         setMissions(result.data.Missions);
       })
@@ -115,7 +140,7 @@ const Missions = (): JSX.Element => {
         setErrMessage("Failed to load missions.");
         console.log(err);
       });
-  }, [sortField,sortDesc]);
+  }, [sortField, sortDesc]);
 
   return (
     <AppLayout title="Missions">
@@ -130,7 +155,7 @@ const Missions = (): JSX.Element => {
               <FilterAltIcon />
             </IconButton>
             <ListMenu
-              options={["Date", "Title","Operator"]}
+              options={["Date", "Title", "Operator"]}
               endIcon={<SortIcon />}
               onSelectionChange={handleSortFieldChange}
             />
@@ -165,66 +190,23 @@ const Missions = (): JSX.Element => {
             <CircularProgress />
           </Box>
         )}
-
-        <Tooltip title="New Mission">
-          <Fab
-            sx={{ position: "fixed", bottom: 16, right: 16 }}
-            color="primary"
-            aria-label="add"
-            onClick={handleNewMissionOpen}
-          >
-            <AddIcon />
-          </Fab>
-        </Tooltip>
-        <Dialog
-          open={newMissionOpen}
-          onClose={handleNewMissionClose}
-          fullWidth
-          maxWidth="sm"
+      <Tooltip title="New Mission">
+        <Fab
+          sx={{ position: "fixed", bottom: 16, right: 16 }}
+          color="primary"
+          aria-label="add"
+          onClick={handleNewMissionOpen}
         >
-          <DialogTitle>New Mission</DialogTitle>
-          <DialogContent>
-            <Grid container direction="column" spacing={2}>
-              <Grid item>
-                <TextField
-                  autoFocus
-                  id="name"
-                  label="Name"
-                  variant="standard"
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  autoFocus
-                  id="desc"
-                  label="Description"
-                  variant="standard"
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DateTimePicker
-                    minDate={new Date()}
-                    minTime={new Date()}
-                    label="Launch Date"
-                    value={tempLaunchDate}
-                    onChange={handleTempLaunchDateChange}
-                    renderInput={(params) => (
-                      <TextField variant="standard" {...params} />
-                    )}
-                  />
-                </LocalizationProvider>
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleNewMissionClose}>Cancel</Button>
-            <Button onClick={handleNewMissionClose}>Save</Button>
-          </DialogActions>
-        </Dialog>
+          <AddIcon />
+        </Fab>
+      </Tooltip>
+       <AddMission 
+       handleNewMissionOpen={handleNewMissionOpen}
+       newMissionOpen={newMissionOpen}
+       handleNewMissionClose={handleNewMissionClose}
+       tempLaunchDate={tempLaunchDate}
+       handleTempLaunchDateChange={handleTempLaunchDateChange}
+       />
       </Container>
       <Snackbar
         open={errMessage != null}
@@ -241,3 +223,5 @@ const Missions = (): JSX.Element => {
 };
 
 export { Missions };
+
+

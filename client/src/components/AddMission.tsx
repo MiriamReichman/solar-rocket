@@ -17,6 +17,44 @@ import {
 
 import * as Yup from 'yup';
 import { Mission } from '../graphql/schema';
+
+interface MissionForm {
+  title: String,
+  operator: String,
+  vehicle: String,
+  name: String,
+  longitude: Number,
+  latitude: Number,
+  periapsis: Number,
+  apoapsis: Number,
+  inclination: Number,
+  capacity: Number,
+  available: Number
+
+}
+const convertToMission = (MissionForm: MissionForm, date: Date | null) => {
+  return {
+    id: null,
+    title: MissionForm.title,
+    operator: MissionForm,
+    date: date,
+    vehicle: MissionForm.vehicle,
+    location: {
+      name: MissionForm.name,
+      longitude: MissionForm.longitude,
+      latitude: MissionForm.latitude
+    },
+    orbit: {
+      periapsis: MissionForm.periapsis,
+      apoapsis: MissionForm.apoapsis,
+      inclination: MissionForm.inclination
+    },
+    payload: {
+      capacity: MissionForm.capacity,
+      available: MissionForm.available
+    }
+  }
+}
 const AddMission: React.FC<{
   handleNewMissionOpen: Function,
   newMissionOpen: boolean,
@@ -35,35 +73,26 @@ const AddMission: React.FC<{
     //   .required('length is required'),
   });
 
-  const initialValues: Mission = {
-    id: "7db171adf4135d6c09385fa9521ee83e",
+  const initialValues: MissionForm = {
     title: "Broadstar I",
     operator: "SpaceCOM",
-    launch: {
-      date:new Date(2022-12-26),
-      vehicle: "Vulture 9",
-      location: {
-        name: "Cape Canaveral SLC-40",
-        longitude: -80.57718,
-        latitude: -28.562106
-      }
-    },
-    orbit: {
-      periapsis: 200,
-      apoapsis: 300,
-      inclination: 36
-    },
-    payload: {
-      capacity: 22000,
-      available: 7000
-    }
-  };
+    vehicle: "Vulture 9",
+    name: "Cape Canaveral SLC-40",
+    longitude: -80.57718,
+    latitude: -28.562106,
+    periapsis: 200,
+    apoapsis: 300,
+    inclination: 36,
+    capacity: 22000,
+    available: 7000
+  }
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
-    onSubmit: (values: Mission, { setSubmitting }: FormikHelpers<Mission>) => {
+    onSubmit: (values: MissionForm, { setSubmitting }: FormikHelpers<MissionForm>) => {
       debugger;
       console.log(JSON.stringify(values));
+      console.log(JSON.stringify(convertToMission(values, props.tempLaunchDate)));
       setSubmitting(false);
       props.handleNewMissionClose();
     }
@@ -78,8 +107,26 @@ const AddMission: React.FC<{
         maxWidth="sm"
       >
         <DialogTitle>New Mission</DialogTitle>
-        <DialogContent>
         <form onSubmit={formik.handleSubmit} >
+          <DialogContent>
+
+
+            {/* {Object.keys(initialValues).map(item => {
+          return(
+            <Grid item>
+              <TextField
+                autoFocus
+                id={item}
+                label={item}
+                variant="standard"
+                fullWidth
+                value={formik.values.item}
+                onChange={formik.handleChange}
+                error={formik.touched.title && Boolean(formik.errors.title)}
+              />
+            </Grid>
+          );
+        })} */}
             <Grid container direction="column" spacing={2}>
               <Grid item>
                 <TextField
@@ -112,7 +159,7 @@ const AddMission: React.FC<{
                     minDate={new Date()}
                     minTime={new Date()}
                     label="Launch Date"
-                    
+
                     value={props.tempLaunchDate}
                     onChange={props.handleTempLaunchDateChange}
                     renderInput={(params) => (
@@ -128,9 +175,9 @@ const AddMission: React.FC<{
                   label="vehicle"
                   variant="standard"
                   fullWidth
-                  value={formik.values.launch.vehicle}
+                  value={formik.values.vehicle}
                   onChange={formik.handleChange}
-                  error={formik.touched.launch?.vehicle && Boolean(formik.touched.launch?.vehicle)}
+                  error={formik.touched.vehicle && Boolean(formik.touched.vehicle)}
                 />
               </Grid>
               <br></br>
@@ -142,9 +189,9 @@ const AddMission: React.FC<{
                   label="name "
                   variant="standard"
                   fullWidth
-                  value={formik.values.launch.location.name}
+                  value={formik.values.name}
                   onChange={formik.handleChange}
-                  error={formik.touched.launch?.location?.name && Boolean(formik.errors.launch?.location?.name)}
+                  error={formik.touched.name && Boolean(formik.errors.name)}
                 />
               </Grid>
               <Grid item>
@@ -155,9 +202,9 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.launch.location.longitude}
+                  value={formik.values.longitude}
                   onChange={formik.handleChange}
-                  error={formik.touched.launch?.location?.longitude && Boolean(formik.touched.launch?.location?.longitude)}
+                  error={formik.touched.longitude && Boolean(formik.touched.longitude)}
                 />
               </Grid>
               <Grid item>
@@ -168,9 +215,9 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.launch.location.latitude}
+                  value={formik.values.latitude}
                   onChange={formik.handleChange}
-                  error={formik.touched.launch?.location?.latitude && Boolean(formik.touched.launch?.location?.latitude)}
+                  error={formik.touched.latitude && Boolean(formik.touched.latitude)}
                 />
               </Grid>
               <br></br>
@@ -183,9 +230,9 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.orbit.periapsis}
+                  value={formik.values.periapsis}
                   onChange={formik.handleChange}
-                  error={formik.touched.orbit?.periapsis && Boolean(formik.errors.orbit?.periapsis)}
+                  error={formik.touched.periapsis && Boolean(formik.errors.periapsis)}
                 />
               </Grid>
               <Grid item>
@@ -196,9 +243,9 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.orbit.apoapsis}
+                  value={formik.values.apoapsis}
                   onChange={formik.handleChange}
-                  error={formik.touched.orbit?.apoapsis && Boolean(formik.errors.orbit?.apoapsis)}
+                  error={formik.touched.apoapsis && Boolean(formik.errors.apoapsis)}
                 />
               </Grid>
               <Grid item>
@@ -209,9 +256,9 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.orbit.inclination}
+                  value={formik.values.inclination}
                   onChange={formik.handleChange}
-                  error={formik.touched.orbit?.inclination && Boolean(formik.errors.orbit?.inclination)}
+                  error={formik.touched.inclination && Boolean(formik.errors.inclination)}
                 />
               </Grid>
               <br></br>
@@ -224,9 +271,9 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.payload.capacity}
+                  value={formik.values.capacity}
                   onChange={formik.handleChange}
-                  error={formik.touched.payload?.capacity && Boolean(formik.errors.payload?.capacity)}
+                  error={formik.touched.capacity && Boolean(formik.errors.capacity)}
                 />
               </Grid>
               <Grid item>
@@ -237,21 +284,21 @@ const AddMission: React.FC<{
                   variant="standard"
                   fullWidth
                   type="Number"
-                  value={formik.values.payload.available}
+                  value={formik.values.available}
                   onChange={formik.handleChange}
-                  error={formik.touched.payload?.available && Boolean(formik.errors.payload?.available)}
+                  error={formik.touched.available && Boolean(formik.errors.available)}
                 />
               </Grid>
 
             </Grid>
-            <Button  type="submit" >Save</Button>
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={props.handleNewMissionClose}>Cancel</Button>
-          
-        </DialogActions> 
-       
+
+
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={props.handleNewMissionClose}>Cancel</Button>
+            <Button type="submit" >Save</Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   )
