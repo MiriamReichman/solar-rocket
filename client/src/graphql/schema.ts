@@ -1,5 +1,5 @@
 export type Mission = {
-  id: String;
+  id?: String;
   title: String;
   operator: String;
   launch: Launch;
@@ -16,7 +16,7 @@ export type Launch = {
 export type Location = {
   name: String;
   longitude: Number;
-  Latitude: Number;
+  latitude: Number;
 }
 
 export type Orbit = {

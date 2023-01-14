@@ -17,7 +17,32 @@ import {
 
 import * as Yup from 'yup';
 import { Mission } from '../graphql/schema';
+import fetchGraphQL from '../graphql/GraphQL';
 
+interface MissionsResponse {
+  data: {
+    createMission: Mission;
+  };
+}
+
+const createMission = async(
+  mission: Mission
+): Promise<MissionsResponse> => {
+  return await fetchGraphQL(
+    `mutation ($mission: MissionInput){
+      createMission(mission: $mission){
+        id
+        title
+        operator
+        launch {
+        date
+        }
+      }
+    }
+    `,
+    { mission: mission }
+  );
+};
 interface MissionForm {
   title: String,
   operator: String,
@@ -32,18 +57,19 @@ interface MissionForm {
   available: Number
 
 }
-const convertToMission = (MissionForm: MissionForm, date: Date | null) => {
+const convertToMission = (MissionForm: MissionForm, date: Date) :Mission => {
   return {
-    id: null,
     title: MissionForm.title,
-    operator: MissionForm,
+    operator: MissionForm.operator,
+    launch:{
     date: date,
     vehicle: MissionForm.vehicle,
     location: {
       name: MissionForm.name,
       longitude: MissionForm.longitude,
       latitude: MissionForm.latitude
-    },
+    }
+  },
     orbit: {
       periapsis: MissionForm.periapsis,
       apoapsis: MissionForm.apoapsis,
@@ -61,16 +87,12 @@ const AddMission: React.FC<{
   handleNewMissionClose: () => void,
   tempLaunchDate: Date | null,
   handleTempLaunchDateChange: (newValue: Date | null) => void
-  ,
+  ,handleNewMissionAdded:(newValue:Mission)=>void
 }> = (props) => {
   const validationSchema = Yup.object({
     title:
       Yup.string()
         .required('title is required'),
-    // length: Yup
-    //   .number()
-    //   .min(1, 'length should be of minimum 1')
-    //   .required('length is required'),
   });
 
   const initialValues: MissionForm = {
@@ -89,10 +111,11 @@ const AddMission: React.FC<{
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
-    onSubmit: (values: MissionForm, { setSubmitting }: FormikHelpers<MissionForm>) => {
-      debugger;
-      console.log(JSON.stringify(values));
-      console.log(JSON.stringify(convertToMission(values, props.tempLaunchDate)));
+   onSubmit: async (values: MissionForm, { setSubmitting }: FormikHelpers<MissionForm>) => {
+      await createMission(convertToMission(values, props.tempLaunchDate?props.tempLaunchDate:new Date())).then((result) => {
+        alert(JSON.stringify(result.data.createMission));
+        props.handleNewMissionAdded(result.data.createMission);
+      });
       setSubmitting(false);
       props.handleNewMissionClose();
     }

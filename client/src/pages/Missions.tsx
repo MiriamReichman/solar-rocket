@@ -68,12 +68,7 @@ const getMissions = async (
   );
 };
 
-// const createMissions = async (
-//   object: String,
-  
-// ): Promise<MissionsResponse> => {
-//   return await fetchGraphQLCreateMission(object);
-// };
+
 const Missions = (): JSX.Element => {
   const [missions, setMissions] = useState<Mission[] | null>(null);
   const [newMissionOpen, setNewMissionOpen] = useState(false);
@@ -81,34 +76,16 @@ const Missions = (): JSX.Element => {
   const [sortDesc, setSortDesc] = useState<boolean>(false);
   const [sortField, setSortField] = useState<SortField>("Title");
   const [errMessage, setErrMessage] = useState<String | null>(null);
-  const [formState, setFormState] = useState<Mission>({
-    id: "7db171adf4135d6c09385fa9521ee83e",
-    title: "Broadstar I",
-    operator: "SpaceCOM",
-    launch: {
-      date:new Date(2022-12-26),
-      vehicle: "Vulture 9",
-      location: {
-        name: "Cape Canaveral SLC-40",
-        longitude: -80.57718,
-        latitude: -28.562106
-      }
-    },
-    orbit: {
-      periapsis: 200,
-      apoapsis: 300,
-      inclination: 36
-    },
-    payload: {
-      capacity: 22000,
-      available: 7000
-    }
-  });
+  
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
     setErrMessage(null);
   };
-
+  const handleNewMissionAdded = (newMission:Mission) => {
+    if(missions)
+      setMissions([...missions,newMission]);
+    else setMissions([newMission]);
+  };
   const handleNewMissionOpen = () => {
     setTempLaunchDate(null);
     setNewMissionOpen(true);
@@ -128,9 +105,7 @@ const Missions = (): JSX.Element => {
   const handleSortDescClick = () => {
     setSortDesc(!sortDesc);
   };
-  const handleLocationChange = () => {
-
-  }
+  
   useEffect(() => {
     getMissions(sortField, sortDesc)
       .then((result: MissionsResponse) => {
@@ -206,6 +181,7 @@ const Missions = (): JSX.Element => {
        handleNewMissionClose={handleNewMissionClose}
        tempLaunchDate={tempLaunchDate}
        handleTempLaunchDateChange={handleTempLaunchDateChange}
+       handleNewMissionAdded={handleNewMissionAdded}
        />
       </Container>
       <Snackbar

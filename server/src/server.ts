@@ -81,7 +81,7 @@ const main = async () => {
       Mutation: {
         async createMission(obj, args) {
           const missions = await loadMissions();
-
+          console.log(obj);
           const mission = CreateMission(args.mission);
           missions.push(mission);
 
