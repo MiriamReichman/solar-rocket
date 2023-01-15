@@ -40,6 +40,11 @@ interface MissionsResponse {
     Missions: Mission[];
   };
 }
+interface DeletedMissionsResponse {
+  data:{
+      deleteMission:Mission[];
+  };
+}
 
 const getMissions = async (
   sortField: SortField,
@@ -67,6 +72,24 @@ const getMissions = async (
     []
   );
 };
+const deleteMission = async(
+  id: String|null,
+): Promise<DeletedMissionsResponse> => {
+  return await fetchGraphQL(
+    `mutation ($id: ID!){
+      deleteMission(id: $id){
+        id
+        title
+        operator
+        launch {
+        date
+        }
+      }
+    }
+    `,
+    { id: id }
+  )
+};
 
 
 const Missions = (): JSX.Element => {
@@ -76,7 +99,8 @@ const Missions = (): JSX.Element => {
   const [sortDesc, setSortDesc] = useState<boolean>(false);
   const [sortField, setSortField] = useState<SortField>("Title");
   const [errMessage, setErrMessage] = useState<String | null>(null);
-  
+  const[toDelete, setToDelete] = useState<String|null>(null);
+
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
     setErrMessage(null);
@@ -106,6 +130,22 @@ const Missions = (): JSX.Element => {
     setSortDesc(!sortDesc);
   };
   
+  
+  useEffect(() => {
+    debugger;
+    if (toDelete) 
+    deleteMission(toDelete)
+      .then((result: DeletedMissionsResponse) => {
+        alert("mission deleted")
+        setMissions(result.data.deleteMission);
+      })
+      .catch((err) => {
+        setErrMessage("Failed to load missions deleted.");
+        console.log(err);
+      
+      });
+  }, [toDelete]);
+
   useEffect(() => {
     getMissions(sortField, sortDesc)
       .then((result: MissionsResponse) => {
@@ -116,7 +156,6 @@ const Missions = (): JSX.Element => {
         console.log(err);
       });
   }, [sortField, sortDesc]);
-
   return (
     <AppLayout title="Missions">
       <Container maxWidth="lg">
@@ -154,7 +193,11 @@ const Missions = (): JSX.Element => {
                     <Typography noWrap>{missions.operator}</Typography>
                   </CardContent>
                   <CardActions>
-                    <Button>Edit</Button>
+                    <Button onClick={()=>{
+                      debugger;
+                      if(missions.id)
+                        setToDelete(missions.id)
+                    }}>Delete</Button>
                   </CardActions>
                 </Card>
               </Grid>

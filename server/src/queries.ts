@@ -45,3 +45,8 @@ export const CreateMission = (mission: Mission): Mission => {
 
   return mission;
 };
+
+export const DeleteMission = (missions: Mission[], id: String): Mission[] => {
+  return missions.filter((obj) => obj.id !== id);
+
+};
