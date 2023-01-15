@@ -8,7 +8,7 @@ import { DateTimeResolver } from "graphql-scalars";
 import path from "path";
 import { GraphQLSchema } from "graphql";
 import { Mission } from "./types";
-import { CreateMission, DeleteMission, GetMissionById, ListMissions } from "./queries";
+import { CreateMission, DeleteMission, editMission, GetMissionById, ListMissions } from "./queries";
 
 const DATA_DIR = path.join(__dirname, "../.data");
 const DATA_DIR_INIT = path.join(__dirname, "../data/init");
@@ -101,6 +101,16 @@ const main = async () => {
             "utf8"
           );
           return filteredMission;
+        },
+        async editMission(obj, args) {
+          const missions = await loadMissions();
+          const editedMissions = editMission(missions,args.id,args.mission);
+          await writeFile(
+            path.join(DATA_DIR, DATA_FILE_MISSIONS),
+            JSON.stringify(editedMissions),
+            "utf8"
+          );
+          return editedMissions;
         }
       },
     },

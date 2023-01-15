@@ -18,6 +18,7 @@ import {
 import * as Yup from 'yup';
 import { Mission } from '../graphql/schema';
 import fetchGraphQL from '../graphql/GraphQL';
+import { convertToMission } from './helpers/convertToMission';
 
 interface MissionsResponse {
   data: {
@@ -57,30 +58,7 @@ interface MissionForm {
   available: Number
 
 }
-const convertToMission = (MissionForm: MissionForm, date: Date) :Mission => {
-  return {
-    title: MissionForm.title,
-    operator: MissionForm.operator,
-    launch:{
-    date: date,
-    vehicle: MissionForm.vehicle,
-    location: {
-      name: MissionForm.name,
-      longitude: MissionForm.longitude,
-      latitude: MissionForm.latitude
-    }
-  },
-    orbit: {
-      periapsis: MissionForm.periapsis,
-      apoapsis: MissionForm.apoapsis,
-      inclination: MissionForm.inclination
-    },
-    payload: {
-      capacity: MissionForm.capacity,
-      available: MissionForm.available
-    }
-  }
-}
+
 const AddMission: React.FC<{
   handleNewMissionOpen: Function,
   newMissionOpen: boolean,

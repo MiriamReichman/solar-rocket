@@ -1,4 +1,5 @@
-
+const id = process.env.REACT_APP_USERID;
+const key=process.env.REACT_APP_APIKEY;
 const fetchFuledByDate = async (date: String) => {
     
     const response : Response =await fetch(`https://solar-rocket-fuel.benmanage.click/delivery/${date}`,

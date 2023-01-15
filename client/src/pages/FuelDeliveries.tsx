@@ -1,4 +1,5 @@
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, CircularProgress, Container, Divider, Drawer, Grid, List, ListItem, ListItemText, TextField, Toolbar, Typography } from "@mui/material";
+import { blue } from "@mui/material/colors";
 import { DatePicker, DateTimePicker, LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useEffect, useState } from "react";
@@ -94,7 +95,7 @@ const FuelDeliveries = (): JSX.Element => {
                     fuelDeliveriesDate.deliveryDates.map((date: string, index: number) => (
                       <Grid item xs>
                         <ListItemText key={index} onClick={() => handleClick(date)}>
-                        <ListItemText primary={date} ></ListItemText>
+                        <ListItemText primary={date} sx={{color:blue}}></ListItemText>
                           </ListItemText>
                        </Grid>
                      

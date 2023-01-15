@@ -50,3 +50,12 @@ export const DeleteMission = (missions: Mission[], id: String): Mission[] => {
   return missions.filter((obj) => obj.id !== id);
 
 };
+
+export const editMission=(missions:Mission[],id:String,mission:Mission): Mission[]=>{
+  mission.id=id;
+  for(let missionObject of missions){
+    if(missionObject.id===id)
+    missionObject=mission
+  }
+return missions;
+}

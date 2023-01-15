@@ -1,5 +1,5 @@
 export type Mission = {
-  id?: String;
+  id?: string;
   title: String;
   operator: String;
   launch: Launch;
