@@ -5,12 +5,12 @@ export type DeliveryDate={
     ]
   };
   export type Delivery={
-   type: FuelDeliveryType,
+    type: FuelDeliveryType,
     quantity: Number,
     unit: String,
-    icon: String
+    icon: string
   };
 export type FuelDeliveryType ="sunlight"|"wind"|"kerosene"|"electricity";
-export type Dates=[String];
+export type Dates=[string];
 
 export type Error= String
