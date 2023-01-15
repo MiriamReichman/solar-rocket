@@ -32,6 +32,8 @@ import {
 
 import { ListMenu } from "../components/ListMenu";
 import { AddMission } from "../components/AddMission";
+import { EditMission } from "../components/EditMission";
+import { render } from "@testing-library/react";
 
 type SortField = "Title" | "Date" | "Operator";
 
@@ -41,8 +43,8 @@ interface MissionsResponse {
   };
 }
 interface DeletedMissionsResponse {
-  data:{
-      deleteMission:Mission[];
+  data: {
+    deleteMission: Mission[];
   };
 }
 
@@ -72,8 +74,8 @@ const getMissions = async (
     []
   );
 };
-const deleteMission = async(
-  id: String|null,
+const deleteMission = async (
+  id: String | null,
 ): Promise<DeletedMissionsResponse> => {
   return await fetchGraphQL(
     `mutation ($id: ID!){
@@ -95,21 +97,26 @@ const deleteMission = async(
 const Missions = (): JSX.Element => {
   const [missions, setMissions] = useState<Mission[] | null>(null);
   const [newMissionOpen, setNewMissionOpen] = useState(false);
+  const [editMissionOpen, setEditMissionOpen] = useState(false);
   const [tempLaunchDate, setTempLaunchDate] = useState<Date | null>(null);
   const [sortDesc, setSortDesc] = useState<boolean>(false);
   const [sortField, setSortField] = useState<SortField>("Title");
   const [errMessage, setErrMessage] = useState<String | null>(null);
-  const[toDelete, setToDelete] = useState<String|null>(null);
+  const [toDelete, setToDelete] = useState<String | null>(null);
+  const [toEdit, setToEdit] = useState<String | null>(null);
 
   const handleErrClose = (event?: SyntheticEvent | Event, reason?: string) => {
     if (reason === "clickaway") return;
     setErrMessage(null);
   };
-  const handleNewMissionAdded = (newMission:Mission) => {
-    if(missions)
-      setMissions([...missions,newMission]);
+  const handleNewMissionAdded = (newMission: Mission) => {
+    if (missions)
+      setMissions([...missions, newMission]);
     else setMissions([newMission]);
   };
+  const handleMissionEdited=(newMission: Mission[]) => {
+    setMissions([...newMission]);
+  }
   const handleNewMissionOpen = () => {
     setTempLaunchDate(null);
     setNewMissionOpen(true);
@@ -118,7 +125,9 @@ const Missions = (): JSX.Element => {
   const handleNewMissionClose = () => {
     setNewMissionOpen(false);
   };
-
+  const handelEditMissionClose = () => {
+    setEditMissionOpen(false);
+  };
   const handleTempLaunchDateChange = (newValue: Date | null) => {
     setTempLaunchDate(newValue);
   };
@@ -129,21 +138,20 @@ const Missions = (): JSX.Element => {
   const handleSortDescClick = () => {
     setSortDesc(!sortDesc);
   };
-  
-  
+
+
   useEffect(() => {
-    debugger;
-    if (toDelete) 
-    deleteMission(toDelete)
-      .then((result: DeletedMissionsResponse) => {
-        alert("mission deleted")
-        setMissions(result.data.deleteMission);
-      })
-      .catch((err) => {
-        setErrMessage("Failed to load missions deleted.");
-        console.log(err);
-      
-      });
+    if (toDelete)
+      deleteMission(toDelete)
+        .then((result: DeletedMissionsResponse) => {
+          alert("mission deleted")
+          setMissions(result.data.deleteMission);
+        })
+        .catch((err) => {
+          setErrMessage("Failed to load missions deleted.");
+          console.log(err);
+
+        });
   }, [toDelete]);
 
   useEffect(() => {
@@ -193,11 +201,16 @@ const Missions = (): JSX.Element => {
                     <Typography noWrap>{missions.operator}</Typography>
                   </CardContent>
                   <CardActions>
-                    <Button onClick={()=>{
+                    <Button onClick={() => {
                       debugger;
-                      if(missions.id)
+                      if (missions.id)
                         setToDelete(missions.id)
                     }}>Delete</Button>
+                    <Button onClick={() => {
+                       if (missions.id)
+                        setToEdit(missions.id)
+                        setEditMissionOpen(true);
+                    }}>Edit</Button>
                   </CardActions>
                 </Card>
               </Grid>
@@ -208,24 +221,33 @@ const Missions = (): JSX.Element => {
             <CircularProgress />
           </Box>
         )}
-      <Tooltip title="New Mission">
-        <Fab
-          sx={{ position: "fixed", bottom: 16, right: 16 }}
-          color="primary"
-          aria-label="add"
-          onClick={handleNewMissionOpen}
-        >
-          <AddIcon />
-        </Fab>
-      </Tooltip>
-       <AddMission 
-       handleNewMissionOpen={handleNewMissionOpen}
-       newMissionOpen={newMissionOpen}
-       handleNewMissionClose={handleNewMissionClose}
-       tempLaunchDate={tempLaunchDate}
-       handleTempLaunchDateChange={handleTempLaunchDateChange}
-       handleNewMissionAdded={handleNewMissionAdded}
-       />
+        <Tooltip title="New Mission">
+          <Fab
+            sx={{ position: "fixed", bottom: 16, right: 16 }}
+            color="primary"
+            aria-label="add"
+            onClick={handleNewMissionOpen}
+          >
+            <AddIcon />
+          </Fab>
+        </Tooltip>
+        <AddMission
+          handleNewMissionOpen={handleNewMissionOpen}
+          newMissionOpen={newMissionOpen}
+          handleNewMissionClose={handleNewMissionClose}
+          tempLaunchDate={tempLaunchDate}
+          handleTempLaunchDateChange={handleTempLaunchDateChange}
+          handleNewMissionAdded={handleNewMissionAdded}
+        />
+        {toEdit?
+          <EditMission
+          editMissionOpen={editMissionOpen}
+          handelEditMissionClose={handelEditMissionClose}
+            tempLaunchDate={tempLaunchDate}
+            handleTempLaunchDateChange={handleTempLaunchDateChange}
+            handleMissionEdited={handleMissionEdited}
+            idToEdit={toEdit?toEdit:''} />
+          : ''}
       </Container>
       <Snackbar
         open={errMessage != null}
