@@ -2,7 +2,7 @@ import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Cir
 import { blue } from "@mui/material/colors";
 import { DatePicker, DateTimePicker, LocalizationProvider, StaticDatePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ListMenu } from "../components/ListMenu";
 import { AppLayout } from "../layouts/AppLayout";
 import fetchFuledByDate from "../solar-rocket-fuel/getFuelDeliveryByDate";
@@ -22,25 +22,30 @@ const FuelDeliveries = (): JSX.Element => {
   const [fuelDeliveries, setFuelDeliveries] = useState<DeliveryDate | null>(null);
   const [viewDelevarys, setViewDelevarys] = useState<Date>(new Date('2023-02-12'));
   const [All, setAll] = useState<boolean>(false);
-  const [viewAllDelevarys, setViewAllDelevarys] = useState<DeliveryDate[]>();
+  const [viewAllDelevarys, setViewAllDelevarys] = useState<DeliveryDate[]|null>(null);
 
 
   useEffect(() => {
     fetchDeliveryDates(date.toISOString().split('T')[0], numOfDays)
-      .then((fule: FuelDeliveriesDate | null) => setFuelDeliveriesDates(fule));
+      .then((fule: FuelDeliveriesDate | null) => {setFuelDeliveriesDates(fule)
+      
+      });
   }, [date, numOfDays])
-
-  useEffect(() => {
-    fuelDeliveriesDate?.deliveryDates.forEach((date: String) => {
-      fetchFuledByDate(date)
-        .then((fuleDeliveryDate: DeliveryDate) => {
-          if (viewAllDelevarys) 
-            setViewAllDelevarys([...viewAllDelevarys, fuleDeliveryDate]);
-          else
-            setViewAllDelevarys([fuleDeliveryDate]);
+  const handleFuelDeliveries = useCallback(() => {
+    setViewAllDelevarys([]);
+    if(fuelDeliveriesDate){
+        const promises = fuelDeliveriesDate.deliveryDates.map((date: String) => {
+           return fetchFuledByDate(date)
         })
-    })
-  }, [fuelDeliveriesDate])
+        Promise.all(promises)
+          .then((deliveries: DeliveryDate[]) => {
+            setViewAllDelevarys(deliveries);
+          });
+    }
+  }, [fuelDeliveriesDate]);
+  useEffect(() => {
+    handleFuelDeliveries()
+  }, [handleFuelDeliveries])
 
   useEffect(() => {
     fetchFuledByDate(viewDelevarys.toISOString().split('T')[0])
